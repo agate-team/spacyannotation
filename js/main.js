@@ -86,15 +86,6 @@ $(document).ready(function(){
 			caretPos = getCaretCharacterOffsetWithin(document.getElementById("annotation-text"));
 			nodeText = "<div id='ner-div' data-entity-id-marked = '"+entityID+"' style='background-color:"+this.style.backgroundColor+"'>"+entityText+"</div>";
 			document.execCommand("insertHTML",false,nodeText);
-			//entityNode = document.createElement("div");
-			//entityNode.id="ner-div";
-			//entityNode.setAttribute("data-entity-id-marked",entityID);
-			//entityNode.style.backgroundColor = this.style.backgroundColor;
-			//entityNode.appendChild(document.createTextNode(entityText));
-			//console.log(range.startOffset);
-			//var startNode = range.startContainer;
-			//var startOffset = range.startOffset;
-			//range.insertNode(entityNode);
 		}
 		var entityStartPosition = caretPos - entityTextLength;
 		var entityEndPosition = caretPos
