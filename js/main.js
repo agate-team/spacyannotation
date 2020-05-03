@@ -63,7 +63,7 @@ function prepareJSONData(){
 	var JSONOutContents = $("#JSON-out").text();
 	JSONOutContents = JSONOutContents.substring(0, JSONOutContents.length - 1);
 	var annotationSentence = $(".raw-data-row:first-child").html();
-	var JSONData = "(\""+annotationSentence+"\",["+JSONOutContents+"]),";
+	var JSONData = "(\""+annotationSentence+"\",{\"entities\":["+JSONOutContents+"]}),";
 	return(JSONData);
 }
 
