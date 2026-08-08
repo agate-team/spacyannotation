@@ -1,58 +1,125 @@
-<html>
-	<head>
-		<title>Spacy NER annotation</title>
-		<script type="text/javascript" src = "https://code.jquery.com/jquery-3.4.1.min.js"></script>
-		<script type="text/javascript" src = "js/main.js"></script>
-		<link rel="stylesheet" href = "css/main.css">
-		<link href="https://fonts.googleapis.com/css2?family=Manrope&display=swap" rel="stylesheet">
-		<link href="https://fonts.googleapis.com/css2?family=Kaushan+Script&display=swap" rel="stylesheet">
-		<link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.1.3/css/bootstrap.min.css" integrity="sha384-MCw98/SFnGE8fJT3GXwEOngsV7Zt27NXFoaoApmYm81iuXoPkFOJwJ8ERdknLPMO" crossorigin="anonymous">
-		<script src="https://code.jquery.com/jquery-3.3.1.slim.min.js" integrity="sha384-q8i/X+965DzO0rT7abK41JStQIAqVgRVzpbzo5smXKp4YfRvH+8abtTE1Pi6jizo" crossorigin="anonymous"></script>
-		<script src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.14.3/umd/popper.min.js" integrity="sha384-ZMP7rVo3mIykV+2+9J3UJ46jBk0WLaUAdn689aCwoqbBJiSnjAK/l8WvCWPIPm49" crossorigin="anonymous"></script>
-		<script src="https://stackpath.bootstrapcdn.com/bootstrap/4.1.3/js/bootstrap.min.js" integrity="sha384-ChfqqxuZUCnJSK3+MXmPNIyE6ZbWh2IMqE241rYiqJxyMiZ6OW/JmZQ5stwEULTy" crossorigin="anonymous"></script>
-		<script async defer src="https://buttons.github.io/buttons.js"></script>
-	</head>
-	<body>
-		<div id="agate-banner">Powered by&emsp;<br/><img src="http://agateteam.org/images/agate_white.png"/><br/>
-			<a class="github-button" href="https://github.com/agate-team/spacyannotation/fork" data-color-scheme="no-preference: light; light: light; dark: dark;" data-show-count="true" aria-label="Fork agate-team/spacyannotation on GitHub">Fork on Github</a>
-		</div>
-		<div id="heading">SpaCy NER annotation tool</div><br/>
-		<div class="padded-body">
-		<div>Add a new 'named entity' here</div>
-		<div id="adding-entity"><input type = "text" placeholder="Enter entity name" id="add-entity-value"/><button id="add-entity-button" class="tiny-button">Add</button><button id="clear-entity-button" class="tiny-button">Clear All</button></div><br/>
-		<div>Named Entities:</div>
-		<div id="annotation-ner"></div><br/>
-		<div class="container">
-			<div class="row">
-				<div class="col-lg-12">
-						Progress:<br/><progress value="22" max="100" id = "completion-percent"></progress><br/>&nbsp;
-				</div>
-			</div>
-			<div class="row">
-				<div class="col-lg-6">
-					<div class="box-headings">Annotate the below sentence</div>
-					<div id = "annotation-text" contenteditable = "true"></div>
-					<input type="button" value="Mark as completed" id="mark-complete-button"></button><br/>
-					<br/>
-				</div>
-				<div class="col-lg-6">
-					<div class="box-headings">Annotated entities</div>
-					<div id="JSON-out"></div><br/><br/>
-				</div>
-			</div>
-			<div class="row">
-				<div class="col-lg-6">
-					<div class="box-headings">Paste raw data to be annotated here</div>
-					<div id="raw-data-div" contenteditable = "true"></div><br/>
-					<input type="button" value="Clear raw data" id="clear-raw" class="sm-button"/><br/>
-				</div>
-				<div class="col-lg-6">
-					<div class="box-headings">Annotation completed data</div>
-					<div id="completed-data-div" contenteditable = "true"></div><br/>
-					<input type="button" value="Clear completed" id="clear-completed" class="sm-button"/><br/>
-				</div>
+<!DOCTYPE html>
+<html lang="en">
+<head>
+	<meta charset="UTF-8">
+	<meta name="viewport" content="width=device-width, initial-scale=1.0">
+	<title>Spacy NER annotation tool</title>
+	<meta name="description" content="Label text spans and export ready-to-train spaCy NER training data.">
+	<link rel="preconnect" href="https://fonts.googleapis.com">
+	<link href="https://fonts.googleapis.com/css2?family=Manrope:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+	<link rel="stylesheet" href="css/main.css">
+	<script>
+		(function () {
+			try {
+				var stored = localStorage.getItem("spacy-annotation-theme");
+				var theme = stored || (window.matchMedia && window.matchMedia("(prefers-color-scheme: dark)").matches ? "dark" : "light");
+				document.documentElement.setAttribute("data-theme", theme);
+			} catch (e) {}
+		})();
+	</script>
+</head>
+<body>
+	<header class="app-header">
+		<div class="brand">
+			<div class="brand-mark"><img src="images/agate_logo.png" alt="Agate logo"></div>
+			<div class="brand-text">
+				<h1>Spacy NER annotation tool</h1>
+				<p>Label entities and export training-ready data</p>
 			</div>
 		</div>
+		<div class="header-actions">
+			<button type="button" id="theme-toggle" class="icon-button" aria-label="Toggle dark mode" aria-pressed="false" title="Toggle dark mode">
+				<svg class="icon-sun" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><circle cx="12" cy="12" r="4"></circle><path d="M12 2v2M12 20v2M4.9 4.9l1.4 1.4M17.7 17.7l1.4 1.4M2 12h2M20 12h2M4.9 19.1l1.4-1.4M17.7 6.3l1.4-1.4"></path></svg>
+				<svg class="icon-moon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 12.8A9 9 0 1 1 11.2 3a7 7 0 0 0 9.8 9.8Z"></path></svg>
+			</button>
+			<a class="github-button" href="https://github.com/agate-team/spacyannotation/fork" data-color-scheme="no-preference: light; light: light; dark: dark;" data-show-count="true" aria-label="Fork agate-team/spacyannotation on GitHub">Fork on GitHub</a>
 		</div>
-	</body>
+	</header>
+
+	<main class="app-main">
+		<div class="info-banner" id="info-banner" role="note">
+			<span class="info-banner-icon" aria-hidden="true">💾</span>
+			<span class="info-banner-text">Your work saves automatically to this browser's storage — it's safe to close this tab anytime and pick up where you left off later, as long as you return on this same device and browser. Switching devices or browsers? Download or copy your data first.</span>
+			<button type="button" id="info-banner-dismiss" class="info-banner-dismiss" aria-label="Dismiss this note" title="Dismiss">&times;</button>
+		</div>
+
+		<section class="panel progress-panel">
+			<div class="progress-info">
+				<span>Progress</span>
+				<span id="progress-label">0%</span>
+			</div>
+			<progress value="0" max="100" id="completion-percent"></progress>
+			<div class="progress-stats">
+				<span id="stat-remaining">0 sentences remaining</span>
+				<span id="stat-completed">0 sentences completed</span>
+			</div>
+		</section>
+
+		<section class="panel">
+			<div class="panel-header">
+				<h2>Entity labels</h2>
+				<span class="panel-hint">Add a label, then select text below and click it — or press its key — to tag</span>
+			</div>
+			<div class="label-input-row">
+				<input type="text" placeholder="e.g. PERSON, ORG, DATE" id="add-entity-value" aria-label="New entity label name">
+				<button type="button" id="add-entity-button" class="btn btn-primary">+ Add label</button>
+				<button type="button" id="clear-entity-button" class="btn btn-ghost">Clear all</button>
+			</div>
+			<div id="annotation-ner" class="entity-chip-list"></div>
+		</section>
+
+		<div class="grid-2">
+			<section class="panel">
+				<div class="panel-header">
+					<h2>Annotate sentence</h2>
+					<span class="panel-hint" id="sentence-position-hint">Highlight text, then click a label above</span>
+				</div>
+				<div id="annotation-text" class="editable-box" contenteditable="true" data-placeholder="Paste raw data below to load a sentence here"></div>
+				<button type="button" id="mark-complete-button" class="btn btn-success">Mark as completed</button>
+			</section>
+			<section class="panel">
+				<div class="panel-header">
+					<h2>Annotated entities</h2>
+				</div>
+				<div id="JSON-out"></div>
+			</section>
+		</div>
+
+		<div class="grid-2">
+			<section class="panel">
+				<div class="panel-header">
+					<h2>Raw data queue</h2>
+					<span class="panel-hint">Paste one sentence per line</span>
+				</div>
+				<div id="raw-data-div" class="editable-box scroll-box" contenteditable="true" data-placeholder="Paste your raw sentences here, one per line"></div>
+				<div class="button-row">
+					<input type="file" id="raw-upload-input" accept=".txt,text/plain" hidden>
+					<button type="button" id="raw-upload-button" class="btn btn-ghost btn-sm">Upload .txt</button>
+					<button type="button" id="clear-raw" class="btn btn-ghost btn-sm">Clear raw data</button>
+				</div>
+			</section>
+			<section class="panel">
+				<div class="panel-header">
+					<h2>Completed annotations</h2>
+				</div>
+				<div id="completed-data-div" class="editable-box scroll-box" contenteditable="true" data-placeholder="Completed spaCy training tuples will appear here"></div>
+				<div class="button-row">
+					<button type="button" id="copy-completed-button" class="btn btn-ghost btn-sm">Copy</button>
+					<button type="button" id="download-completed-button" class="btn btn-ghost btn-sm">Download .txt</button>
+					<button type="button" id="clear-completed" class="btn btn-ghost btn-sm">Clear completed</button>
+				</div>
+			</section>
+		</div>
+	</main>
+
+	<footer class="app-footer">
+		<span>Powered by <a href="http://agateteam.org" target="_blank" rel="noopener">Agate</a></span>
+		<span>Output format: spaCy NER training tuples</span>
+	</footer>
+
+	<script src="https://code.jquery.com/jquery-3.7.1.min.js"></script>
+	<script src="js/theme.js"></script>
+	<script src="js/main.js"></script>
+	<script async defer src="https://buttons.github.io/buttons.js"></script>
+</body>
 </html>
